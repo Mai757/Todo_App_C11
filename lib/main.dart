@@ -1,10 +1,29 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app/providers/AuthProvider.dart';
+import 'package:todo_app/providers/TasksProvider.dart';
 import 'package:todo_app/ui/home/homescreen.dart';
+import 'package:todo_app/ui/home/list/EditTaskScreen.dart';
 import 'package:todo_app/ui/login/LoginScreen.dart';
 import 'package:todo_app/ui/register/RegisterScreen.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(const MyApp());
+
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+
+  );
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => AppAuthProvider()),
+      ChangeNotifierProvider(create: (_) => TasksProvider()),
+
+    ],
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -13,6 +32,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var authProvider = Provider.of<AppAuthProvider>(context);
     return MaterialApp(
       title: 'Todo App',
       theme: ThemeData(
@@ -47,8 +67,11 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName : (_)=> HomeScreen(),
         RegisterScreen.routeName : (_)=>RegisterScreen(),
         LoginScreen.routeName : (_)=>LoginScreen(),
+        EditTaskScreen.routeName: (_)=>EditTaskScreen(),
       },
-      initialRoute: RegisterScreen.routeName,
+      initialRoute:
+      authProvider.isLoggedIn()?HomeScreen.routeName :
+      LoginScreen.routeName,
     );
   }
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app/providers/AuthProvider.dart';
+import 'package:todo_app/ui/home/AddTaskBottomSheet.dart';
 import 'package:todo_app/ui/home/list/TasksListTab.dart';
 import 'package:todo_app/ui/home/settings/settingsTab.dart';
+import 'package:todo_app/ui/login/LoginScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String routeName = "home";
@@ -20,9 +24,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var provider = Provider.of<AppAuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Todo App"),
+
+        title: Text("Welcome : ${provider.appUser?.fullName}"),
+        actions: [
+          InkWell(
+            onTap: (){
+              provider.logout();
+              Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+            },
+              child: Icon(Icons.logout))
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
@@ -30,7 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
           side: BorderSide(color: Colors.white,
               width: 4),
         ),
-        onPressed: (){},
+        onPressed: (){
+          showAddTaskBottomSheet();
+        },
         child: Icon(Icons.add),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -55,5 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: tabs[selectedTabIndex],
     );
+  }
+
+  void showAddTaskBottomSheet() {
+    showModalBottomSheet(context: context, builder: (buildContext){
+      return AddTaskBottomSheet();
+    });
   }
 }
